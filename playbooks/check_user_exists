@@ -1,0 +1,4 @@
+Check User Exists
+id testuser; [ $? -eq 0 ] && return_status=1 || return_status=0; exit $return_status
+Get Uptime if user does not exist
+uptime
