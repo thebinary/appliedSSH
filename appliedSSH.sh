@@ -44,8 +44,9 @@ function execCommand {
     then
 	    verbosity=""
     fi
-    command="$@ $verbosity"
-    output_org=$($ssh_exec $host 2>/dev/null $verbosity "$@" < /dev/null)  
+    command="$@"
+    ssh_exec_command="$ssh_exec $host sh -c '$@'"
+    output_org=$($ssh_exec_command 2>/dev/null < /dev/null)
     return_status=$?
     output=$(echo -en "$output_org" | awk 'BEGIN{ORS="\\\\n"} {print $0}')
     [ -z "$output" ] || output="$output\n"
