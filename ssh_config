@@ -1,0 +1,6 @@
+#ProxyCommand=ssh -W %h:%p bastion_host -pbastion_host_port
+StrictHostKeyChecking=no
+UserKnownHostsFile=/dev/null
+ControlMaster=auto
+ControlPath=.ssh/sockets/%r@%h:%p
+ControlPersist=30s
