@@ -8,6 +8,8 @@ playbook=$1
 shift
 hosts=$@
 
+VERBOSE=${VERBOSE-0}
+
 if [ -e private.run.config ]
 then
 	. private.run.config
@@ -35,18 +37,27 @@ function echoFailed {
     local RESET="\033[0m"
     echo -e "${RED}=> FAILED\n$@$RESET"
 }
+function echoCommand {
+    local RED="\033[0;34m"
+    local RESET="\033[0m"
+    echo -e "${RED}=> COMMAND: \n$@$RESET"
+}
 
 function execCommand {
     verbosity=">/dev/null 2>&1"
     local_verbosity="2>/dev/null"
     #local_verbosity=""
-    if [ "$VERBOSE" == "1" ]
+    if [ $VERBOSE -gt 0 ]
     then
 	    verbosity=""
     fi
     command="$@"
     ssh_exec_command="$ssh_exec $host sh -c '$@'"
-    output_org=$($ssh_exec_command 2>/dev/null < /dev/null)
+    if [ $VERBOSE -ge 2 ]
+    then
+	    echoCommand "$ssh_exec_command"
+    fi
+    output_org=$($ssh_exec_command $verbosity 2>/dev/null < /dev/null)
     return_status=$?
     output=$(echo -en "$output_org" | awk 'BEGIN{ORS="\\\\n"} {print $0}')
     [ -z "$output" ] || output="$output\n"
