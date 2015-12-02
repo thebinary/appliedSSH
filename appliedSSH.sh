@@ -9,6 +9,7 @@ shift
 hosts=$@
 
 VERBOSE=${VERBOSE-0}
+DOSUDO=${DOSUDO-0}
 
 if [ -e private.run.config ]
 then
@@ -53,6 +54,10 @@ function execCommand {
     fi
     command="$@"
     ssh_exec_command="$ssh_exec $host sh -c '$@'"
+    if [ $DOSUDO -eq 1 ]
+    then
+	ssh_exec_command="$ssh_exec $host sh -c 'export HISTFILE=/dev/null; echo \"$DOSUDOPASS\" | sudo -S $@'"
+    fi 
     if [ $VERBOSE -ge 2 ]
     then
 	    echoCommand "$ssh_exec_command"
