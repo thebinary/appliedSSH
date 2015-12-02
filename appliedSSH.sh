@@ -56,13 +56,19 @@ function execCommand {
     ssh_exec_command="$ssh_exec $host sh -c '$@'"
     if [ $DOSUDO -eq 1 ]
     then
-	ssh_exec_command="$ssh_exec $host sh -c 'export HISTFILE=/dev/null; echo \"$DOSUDOPASS\" | sudo -S $@'"
+read -r -d '' ssh_exec_command <<EOF
+$ssh_exec -tt $host $verbosity sh <<EXTERNAL
+export HISTFILE=/dev/null
+echo "$DOSUDOPASS" | sudo -S sh -c '$@'
+exit \$?
+EXTERNAL
+EOF
     fi 
     if [ $VERBOSE -ge 2 ]
     then
 	    echoCommand "$ssh_exec_command"
     fi
-    output_org=$($ssh_exec_command $verbosity 2>/dev/null < /dev/null)
+    output_org=$(eval "$ssh_exec_command" 2>/dev/null < /dev/null)
     return_status=$?
     output=$(echo -en "$output_org" | awk 'BEGIN{ORS="\\\\n"} {print $0}')
     [ -z "$output" ] || output="$output\n"
